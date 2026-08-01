@@ -79,6 +79,38 @@ export interface RateLimitResult {
   resetAt: number; // Unix ms
 }
 
+// ─── Referral ─────────────────────────────────────────────────────────────────
+
+/** Shape returned by GET /api/referral */
+export interface ReferralInfo {
+  referralCode: string;
+  referralCount: number;
+  referralUrl: string;
+}
+
+/** Single item returned by GET /api/referral/history */
+export interface ReferralHistoryItem {
+  /** Referral row id — used as React list key only */
+  id: string;
+  /** Referred user's display name (or "Anonymous") */
+  name: string;
+  /** ISO date string of when they registered */
+  joinedAt: string;
+  /** Always "Successful" — only completed referrals are stored */
+  status: "Successful";
+}
+
+/** Full paginated response from GET /api/referral/history */
+export interface ReferralHistoryResponse {
+  items: ReferralHistoryItem[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 // ─── Audit ────────────────────────────────────────────────────────────────────
 
 export type AuditAction =

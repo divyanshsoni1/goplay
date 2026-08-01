@@ -7,6 +7,12 @@
  *  - Password hashed with bcrypt (cost factor 12)
  *  - Generic error for duplicate email (no user enumeration)
  *  - Input validated and sanitised via Zod
+ *
+ * Referral:
+ *  - Reads the `gp_ref` cookie set when the user landed via a referral link
+ *  - Validates the code server-side (resolveReferrerByCode)
+ *  - Records the relationship atomically after user creation (recordReferral)
+ *  - Self-referral and duplicate referrals are silently ignored
  */
 
 import bcrypt from "bcryptjs";
@@ -22,6 +28,11 @@ import {
   err,
 } from "@/lib/api-response";
 import { logger } from "@/lib/logger";
+import {
+  REFERRAL_COOKIE_NAME,
+  resolveReferrerByCode,
+  recordReferral,
+} from "@/lib/referral";
 import type { NextRequest } from "next/server";
 
 const BCRYPT_COST = 12;
@@ -49,6 +60,12 @@ export async function POST(request: NextRequest) {
 
   const { name, email, password } = parsed.data;
 
+  // ── Read referral code from cookie (server-side, trusted) ─────────────────
+  // The cookie is HttpOnly and set by our own API, so it cannot be forged
+  // by injecting a value in the request body.
+  const pendingRefCode =
+    request.cookies.get(REFERRAL_COOKIE_NAME)?.value ?? null;
+
   try {
     // ── Duplicate check ───────────────────────────────────────────────────
     const existing = await prisma.user.findUnique({
@@ -57,10 +74,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      // Return a generic message regardless of whether it's a Google or
-      // credentials account — prevents user enumeration.
       if (existing.provider === "google" && !existing.password) {
-        // Slightly more helpful for Google users, but still safe
         return err(
           "ACCOUNT_EXISTS",
           "An account with this email already exists. If you signed up with Google, please use Google Sign-In.",
@@ -95,20 +109,53 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // ── Record referral (fire-and-forget, must never break registration) ──
+    if (pendingRefCode) {
+      try {
+        const referrerId = await resolveReferrerByCode(pendingRefCode, user.id);
+        if (referrerId) {
+          await recordReferral(referrerId, user.id);
+        }
+      } catch (referralError) {
+        // A referral failure must NEVER prevent account creation
+        logger.error("Referral recording failed — user was still created", {
+          userId: user.id,
+          code: pendingRefCode,
+          error: String(referralError),
+        });
+      }
+    }
+
     await writeAuditLog({
       action: "LOGIN", // Registration counts as the first login event
       userId: user.id,
       ip,
       userAgent: getUserAgent(request),
-      metadata: { event: "REGISTER" },
+      metadata: {
+        event: "REGISTER",
+        ...(pendingRefCode ? { referralCode: pendingRefCode } : {}),
+      },
     });
 
-    logger.info("New credentials user registered", { userId: user.id });
+    logger.info("New credentials user registered", {
+      userId: user.id,
+      hasReferral: !!pendingRefCode,
+    });
 
-    return ok(
+    // ── Expire the referral cookie so it cannot be reused ─────────────────
+    const response = ok(
       { id: user.id, name: user.name, email: user.email },
       201
     );
+    response.cookies.set(REFERRAL_COOKIE_NAME, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0, // delete immediately
+    });
+
+    return response;
   } catch (error) {
     logger.error("POST /api/auth/register failed", {
       error: String(error),

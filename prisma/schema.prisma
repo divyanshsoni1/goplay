@@ -47,17 +47,34 @@ model User {
   // Tracks primary sign-in method (google | credentials)
   provider      String?   @default("google")
 
+  // ── Referral ───────────────────────────────────────────────────────────────
+  // Unique, immutable code for this user's referral link
+  referralCode   String?   @unique
+  // How many successfully-registered users this user has referred
+  referralCount  Int       @default(0)
+  // The user who referred this user (NULL if they joined organically)
+  referredById   String?
+
   // Relations
   accounts       Account[]
   sessions       Session[]
   auditLogs      AuditLog[]
   downloadStats  DownloadStats[]
+  // Referrals this user sent out
+  referralsSent     Referral[] @relation("ReferralSender")
+  // The single referral record that brought this user in
+  referralReceived  Referral?  @relation("ReferralReceiver")
+  // The referrer user (via referredById)
+  referredBy     User?     @relation("ReferredByRelation", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals      User[]    @relation("ReferredByRelation")
 
   @@index([email])
   @@index([role])
   @@index([isActive])
   @@index([createdAt])
   @@index([passwordResetToken])
+  @@index([referralCode])
+  @@index([referredById])
 }
 
 // ─── Account (NextAuth) ───────────────────────────────────────────────────────
@@ -158,5 +175,23 @@ model ContactMessage {
 
   @@index([email])
   @@index([status])
+  @@index([createdAt])
+}
+
+// ─── Referral ─────────────────────────────────────────────────────────────────
+// One row per successful referral (new user completed registration via a ref link).
+
+model Referral {
+  id         String   @id @default(cuid())
+  // The user who shared the link
+  senderId   String
+  // The newly-registered user who used the link
+  receiverId String   @unique   // A user can only be referred once
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("ReferralSender",   fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver User @relation("ReferralReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
   @@index([createdAt])
 }
