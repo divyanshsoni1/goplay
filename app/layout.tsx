@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { JsonLd } from "./ui";
+import { SessionProvider } from "next-auth/react";
 
 /* ─── Site-wide metadata defaults ──────────────────────────────────────── */
 export const metadata: Metadata = {
@@ -103,7 +104,9 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <JsonLd data={siteJsonLd} />
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

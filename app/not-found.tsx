@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import styles from "./page.module.css";
-import { Footer, Header } from "./components";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Page Not Found – Goplay",
@@ -20,7 +21,7 @@ const helpLinks = [
 export default function NotFound() {
   return (
     <div className={styles.page}>
-      <Header />
+      <Navbar />
       <main id="main-content">
         <section className={styles.notFoundPage} aria-label="Page not found">
           <div className={styles.notFoundInner}>
