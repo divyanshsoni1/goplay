@@ -25,8 +25,15 @@ const nextConfig: NextConfig = {
   // Strict mode catches subtle bugs early
   reactStrictMode: true,
 
-  // Silence the Next.js X-Powered-By header (redundant; middleware does this too)
+  // Silence the Next.js X-Powered-By header (redundant; proxy does this too)
   poweredByHeader: false,
+
+  // Tell Turbopack/Next.js that this directory is the workspace root.
+  // Without this, Next.js can get confused by lockfiles in parent directories
+  // and log a spurious workspace-root warning that pollutes CI output.
+  turbopack: {
+    root: __dirname,
+  },
 
   // Redirect /auth/error to our /(auth)/error page
   async redirects() {

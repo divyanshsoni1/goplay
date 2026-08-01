@@ -1,5 +1,7 @@
 /**
- * middleware.ts  (project root)
+ * proxy.ts  (project root)
+ * Next.js 16 renamed "middleware.ts" to "proxy.ts".
+ * This file is the successor to middleware.ts — identical logic, new name.
  *
  * Responsibilities:
  *  1. Enforce authentication on protected routes (/dashboard, /admin)
@@ -63,9 +65,9 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── Proxy handler ────────────────────────────────────────────────────────────
 
-export default auth(function middleware(req: NextAuthRequest) {
+export default auth(function proxy(req: NextAuthRequest) {
   const pathname = req.nextUrl.pathname;
   const session = req.auth;
   const isLoggedIn = !!session?.user;
