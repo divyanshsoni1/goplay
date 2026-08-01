@@ -37,6 +37,16 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Credentials auth — NULL for Google-only users
+  password      String?
+
+  // Password reset
+  passwordResetToken   String?   @unique
+  passwordResetExpires DateTime?
+
+  // Tracks primary sign-in method (google | credentials)
+  provider      String?   @default("google")
+
   // Relations
   accounts       Account[]
   sessions       Session[]
@@ -47,6 +57,7 @@ model User {
   @@index([role])
   @@index([isActive])
   @@index([createdAt])
+  @@index([passwordResetToken])
 }
 
 // ─── Account (NextAuth) ───────────────────────────────────────────────────────

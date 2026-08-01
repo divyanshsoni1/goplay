@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 /* ── Data ─────────────────────────────────────────────────────────────── */
 
 const systemReqs = [
-  ["Device",       "Android smartphone or tablet (primary supported platform)"],
-  ["OS Version",   "Updated Android OS — check the official app for minimum version"],
-  ["Storage",      "Sufficient free space for the APK and future update files"],
-  ["Internet",     "Stable Wi-Fi or mobile data connection recommended"],
-  ["Battery",      "Charge device to at least 30 % before installing"],
+  ["Device", "Android smartphone or tablet (primary supported platform)"],
+  ["OS Version", "Updated Android OS — check the official app for minimum version"],
+  ["Storage", "Sufficient free space for the APK and future update files"],
+  ["Internet", "Stable Wi-Fi or mobile data connection recommended"],
+  ["Battery", "Charge device to at least 30% before installing"],
 ];
 
 const steps = [
@@ -39,7 +39,7 @@ const steps = [
     num: "03",
     title: "APK Saved to Storage",
     body: "The APK file saves to your device's Downloads folder. Verify these before continuing:",
-    checklist: ["Enough free storage space", "Stable internet throughout download", "Battery charged above 30 %"],
+    checklist: ["Enough free storage space", "Stable internet throughout download", "Battery charged above 30%"],
     type: "checklist" as const,
   },
   {
@@ -81,8 +81,8 @@ const registration = [
 
 const loginReqs = [
   ["Mobile number or username", "The credential you used during registration"],
-  ["Password",                  "Your account password — never share this with anyone"],
-  ["Internet connection",       "Stable connection required to authenticate"],
+  ["Password", "Your account password — never share this with anyone"],
+  ["Internet connection", "Stable connection required to authenticate"],
 ];
 
 const troubles = [
@@ -138,120 +138,338 @@ export default function Page() {
         </div>
 
         {/* Hero */}
-        <section className={styles.pageHero} aria-label="Page hero">
+        <section className={styles.pageHero} aria-label="Page hero" style={{ paddingBottom: 32 }}>
           <div className={styles.container}>
-            <h1>How to Download the Goplay App</h1>
-            <p>
-              A safe, step-by-step Android download and installation guide with
-              system requirements, troubleshooting, and account setup.
-            </p>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              maxWidth: 720,
+              margin: "0 auto",
+            }}>
+              <span style={{
+                display: "inline-block",
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--primary, #2563eb)",
+                background: "var(--primary-soft, #dbeafe)",
+                padding: "4px 16px",
+                borderRadius: 100,
+                marginBottom: 20,
+              }}>
+                Download Guide
+              </span>
+              <h1 style={{
+                fontSize: "clamp(2.4rem, 5vw, 3.4rem)",
+                fontWeight: 700,
+                lineHeight: 1.1,
+                marginBottom: 16,
+                letterSpacing: "-0.02em",
+              }}>
+                How to Download <br />
+                <span style={{ color: "var(--primary, #2563eb)" }}>the Goplay App</span>
+              </h1>
+              <p style={{
+                fontSize: "1.15rem",
+                lineHeight: 1.7,
+                color: "var(--body, #4b5563)",
+                maxWidth: 580,
+                margin: "0 auto",
+              }}>
+                A safe, step-by-step Android download and installation guide with
+                system requirements, troubleshooting, and account setup.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* System Requirements */}
-        <section className={styles.contentSection} aria-label="System requirements">
+        <section className={styles.contentSection} aria-label="System requirements" style={{ paddingTop: 0 }}>
           <div className={styles.container}>
-            <h2>System Requirements</h2>
-            <table className={styles.table} aria-label="System requirements table">
-              <tbody>
-                {systemReqs.map(([label, value]) => (
-                  <tr key={label}>
-                    <th scope="row" style={{ whiteSpace: "nowrap" }}>{label}</th>
-                    <td>{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={{
+              background: "#ffffff",
+              borderRadius: 24,
+              padding: "32px 28px",
+              border: "1px solid var(--border-light, #f0f0f0)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.02)",
+            }}>
+              <h2 style={{
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                marginBottom: 4,
+                letterSpacing: "-0.01em",
+              }}>
+                System Requirements
+              </h2>
+              <p style={{
+                color: "var(--body, #4b5563)",
+                fontSize: "0.95rem",
+                marginBottom: 20,
+              }}>
+                Ensure your device meets these basic requirements before downloading.
+              </p>
+              <div style={{ overflowX: "auto" }}>
+                <table className={styles.table} aria-label="System requirements table" style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "0.92rem",
+                }}>
+                  <tbody>
+                    {systemReqs.map(([label, value]) => (
+                      <tr key={label} style={{ borderBottom: "1px solid var(--border-light, #f3f4f6)" }}>
+                        <th scope="row" style={{
+                          textAlign: "left",
+                          padding: "12px 16px",
+                          fontWeight: 600,
+                          color: "var(--heading, #111827)",
+                          whiteSpace: "nowrap",
+                          width: "30%",
+                        }}>
+                          {label}
+                        </th>
+                        <td style={{
+                          padding: "12px 16px",
+                          color: "var(--body, #4b5563)",
+                        }}>
+                          {value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* 6-Step Guide */}
-        <section className={styles.contentSection} aria-label="Download steps">
+        <section className={styles.contentSection} aria-label="Download steps" style={{ paddingTop: 0 }}>
           <div className={styles.container}>
             <SectionHeader
               label="INSTALLATION GUIDE"
               title="Six Steps to Get Goplay Running"
               subtitle="Follow each step in order for a smooth, safe installation."
             />
-            <div className={styles.steps} role="list">
+            <div style={{
+              display: "grid",
+              gap: 24,
+              marginTop: 32,
+            }} role="list">
               {steps.map((step) => (
-                <article className={styles.step} key={step.num} role="listitem">
-                  <b aria-hidden="true">{step.num}</b>
-                  <div className={styles.stepDot} aria-hidden="true" />
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
+                <article
+                  key={step.num}
+                  role="listitem"
+                  style={{
+                    background: "#ffffff",
+                    borderRadius: 20,
+                    padding: "28px 28px",
+                    border: "1px solid var(--border-light, #f0f0f0)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                    transition: "transform 0.2s ease, box-shadow 0.3s ease",
+                  }}
+                  className="stepCard"
+                >
+                  <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+                    {/* Step number */}
+                    <span style={{
+                      fontSize: "2.2rem",
+                      fontWeight: 700,
+                      color: "var(--primary, #2563eb)",
+                      lineHeight: 1,
+                      flexShrink: 0,
+                      minWidth: 52,
+                    }} aria-hidden="true">
+                      {step.num}
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{
+                        fontSize: "1.15rem",
+                        fontWeight: 600,
+                        margin: "0 0 6px 0",
+                        letterSpacing: "-0.01em",
+                      }}>
+                        {step.title}
+                      </h3>
+                      <p style={{
+                        fontSize: "0.95rem",
+                        lineHeight: 1.7,
+                        color: "var(--body, #4b5563)",
+                        margin: "0 0 8px 0",
+                      }}>
+                        {step.body}
+                      </p>
 
-                  {step.checklist && (
-                    <ul className={styles.stepChecklist} aria-label="Checklist">
-                      {step.checklist.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  )}
+                      {step.checklist && (
+                        <ul style={{
+                          paddingLeft: 20,
+                          margin: "8px 0 0",
+                          display: "grid",
+                          gap: 4,
+                        }}>
+                          {step.checklist.map((item) => (
+                            <li key={item} style={{
+                              fontSize: "0.9rem",
+                              color: "var(--body, #4b5563)",
+                              lineHeight: 1.6,
+                            }}>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
 
-                  {step.instructions && (
-                    <ol className={styles.stepInstructions}
-                        style={{ paddingLeft: 18, margin: "10px 0 0", color: "var(--body)", fontSize: 13, lineHeight: 1.7 }}
-                        aria-label="Step-by-step instructions">
-                      {step.instructions.map((ins) => (
-                        <li key={ins}>{ins}</li>
-                      ))}
-                    </ol>
-                  )}
+                      {step.instructions && (
+                        <ol style={{
+                          paddingLeft: 20,
+                          margin: "8px 0 0",
+                          display: "grid",
+                          gap: 4,
+                        }}>
+                          {step.instructions.map((ins) => (
+                            <li key={ins} style={{
+                              fontSize: "0.9rem",
+                              color: "var(--body, #4b5563)",
+                              lineHeight: 1.6,
+                            }}>
+                              {ins}
+                            </li>
+                          ))}
+                        </ol>
+                      )}
 
-                  {step.note && (
-                    <p className={styles.stepInstructions}
-                       style={{ marginTop: 10, background: step.type === "warning" ? "#fff8f4" : "transparent",
-                                padding: step.type === "warning" ? "8px 10px" : 0,
-                                borderRadius: 6, fontStyle: "italic" }}>
-                      {step.type === "warning" ? "⚠️ " : "ℹ️ "}{step.note}
-                    </p>
-                  )}
+                      {step.note && (
+                        <p style={{
+                          marginTop: 12,
+                          fontSize: "0.9rem",
+                          background: step.type === "warning" ? "#fef9e7" : "var(--surface-alt, #f3f4f6)",
+                          padding: "8px 14px",
+                          borderRadius: 8,
+                          color: step.type === "warning" ? "#92400e" : "var(--body, #4b5563)",
+                          borderLeft: `3px solid ${step.type === "warning" ? "#f59e0b" : "var(--primary, #2563eb)"}`,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}>
+                          <span style={{ fontSize: "1.1rem" }} aria-hidden="true">
+                            {step.type === "warning" ? "⚠️" : "ℹ️"}
+                          </span>
+                          {step.note}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </article>
               ))}
-            </div>
-
-            <div style={{ marginTop: 40 }}>
-              <Link className={styles.primaryButton} href="#troubleshooting">
-                Troubleshooting Help <b>↓</b>
-              </Link>
             </div>
           </div>
         </section>
 
-        {/* Registration */}
-        <section className={styles.contentSection} aria-label="Account registration">
+        {/* Registration & Login */}
+        <section className={styles.contentSection} aria-label="Account registration" style={{ paddingTop: 0 }}>
           <div className={styles.container}>
-            <div className={styles.twoCol}>
-              <div>
-                <h2>Creating Your Account</h2>
-                <p style={{ color: "var(--body)", lineHeight: 1.7, marginBottom: 20 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 28,
+            }}>
+              {/* Registration */}
+              <div style={{
+                background: "#ffffff",
+                borderRadius: 20,
+                padding: "28px 24px",
+                border: "1px solid var(--border-light, #f0f0f0)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+              }}>
+                <h2 style={{
+                  fontSize: "1.3rem",
+                  fontWeight: 600,
+                  marginBottom: 8,
+                  letterSpacing: "-0.01em",
+                }}>
+                  Creating Your Account
+                </h2>
+                <p style={{
+                  color: "var(--body, #4b5563)",
+                  lineHeight: 1.7,
+                  marginBottom: 16,
+                  fontSize: "0.95rem",
+                }}>
                   Registration is straightforward. Once the app is installed, follow
                   these steps to set up your account:
                 </p>
-                <ol style={{ paddingLeft: 20, display: "grid", gap: 10 }}>
+                <ol style={{
+                  paddingLeft: 20,
+                  display: "grid",
+                  gap: 8,
+                }}>
                   {registration.map((step) => (
-                    <li key={step} style={{ color: "var(--body)", fontSize: 15, lineHeight: 1.6 }}>
+                    <li key={step} style={{
+                      color: "var(--body, #4b5563)",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.6,
+                    }}>
                       {step}
                     </li>
                   ))}
                 </ol>
               </div>
-              <div>
-                <h2>Login Requirements</h2>
-                <p style={{ color: "var(--body)", lineHeight: 1.7, marginBottom: 16 }}>
+
+              {/* Login Requirements */}
+              <div style={{
+                background: "#ffffff",
+                borderRadius: 20,
+                padding: "28px 24px",
+                border: "1px solid var(--border-light, #f0f0f0)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+              }}>
+                <h2 style={{
+                  fontSize: "1.3rem",
+                  fontWeight: 600,
+                  marginBottom: 8,
+                  letterSpacing: "-0.01em",
+                }}>
+                  Login Requirements
+                </h2>
+                <p style={{
+                  color: "var(--body, #4b5563)",
+                  lineHeight: 1.7,
+                  marginBottom: 16,
+                  fontSize: "0.95rem",
+                }}>
                   To log in to an existing account you will need:
                 </p>
-                <table className={styles.table} aria-label="Login requirements">
-                  <tbody>
-                    {loginReqs.map(([req, detail]) => (
-                      <tr key={req}>
-                        <th scope="row">{req}</th>
-                        <td>{detail}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div style={{ overflowX: "auto" }}>
+                  <table className={styles.table} aria-label="Login requirements" style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.9rem",
+                  }}>
+                    <tbody>
+                      {loginReqs.map(([req, detail]) => (
+                        <tr key={req} style={{ borderBottom: "1px solid var(--border-light, #f3f4f6)" }}>
+                          <th scope="row" style={{
+                            textAlign: "left",
+                            padding: "10px 12px",
+                            fontWeight: 600,
+                            color: "var(--heading, #111827)",
+                            width: "40%",
+                          }}>
+                            {req}
+                          </th>
+                          <td style={{
+                            padding: "10px 12px",
+                            color: "var(--body, #4b5563)",
+                          }}>
+                            {detail}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -262,50 +480,184 @@ export default function Page() {
           className={styles.contentSection}
           id="troubleshooting"
           aria-label="Troubleshooting"
+          style={{ paddingTop: 0 }}
         >
           <div className={styles.container}>
-            <h2>Troubleshooting</h2>
-            <p style={{ color: "var(--body)", lineHeight: 1.7, marginBottom: 24 }}>
-              If you run into issues during download or installation, check the
-              relevant item below.
-            </p>
-            <div className={styles.troubleshootWrap}>
-              {troubles.map((t) => (
-                <details className={styles.troubleItem} key={t.q}>
-                  <summary>{t.q}</summary>
-                  <div className={styles.troubleBody}>
-                    <h4>Possible reasons</h4>
-                    <ul>
-                      {t.reasons.map((r) => <li key={r}>{r}</li>)}
-                    </ul>
-                    <h4>Solutions</h4>
-                    <ul>
-                      {t.fixes.map((f) => <li key={f}>{f}</li>)}
-                    </ul>
-                  </div>
-                </details>
-              ))}
+            <div style={{
+              background: "#ffffff",
+              borderRadius: 24,
+              padding: "32px 28px",
+              border: "1px solid var(--border-light, #f0f0f0)",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.02)",
+            }}>
+              <h2 style={{
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                marginBottom: 4,
+                letterSpacing: "-0.01em",
+              }}>
+                Troubleshooting
+              </h2>
+              <p style={{
+                color: "var(--body, #4b5563)",
+                lineHeight: 1.7,
+                marginBottom: 24,
+                fontSize: "0.95rem",
+              }}>
+                If you run into issues during download or installation, check the
+                relevant item below.
+              </p>
+              <div style={{ display: "grid", gap: 12 }}>
+                {troubles.map((t, index) => (
+                  <details
+                    key={t.q}
+                    style={{
+                      border: "1px solid var(--border-light, #f0f0f0)",
+                      borderRadius: 12,
+                      padding: "0 16px",
+                      transition: "border-color 0.2s",
+                    }}
+                    className="troubleItem"
+                  >
+                    <summary style={{
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      padding: "14px 0",
+                      fontSize: "1rem",
+                      color: "var(--heading, #111827)",
+                      listStyle: "none",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}>
+                      <span>{t.q}</span>
+                      <span style={{ color: "var(--primary, #2563eb)", fontSize: "1.2rem" }} aria-hidden="true">
+                        ▼
+                      </span>
+                    </summary>
+                    <div style={{
+                      padding: "0 0 16px 0",
+                      borderTop: "1px solid var(--border-light, #f0f0f0)",
+                    }}>
+                      <div style={{ marginTop: 16 }}>
+                        <h4 style={{
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                          color: "var(--heading, #111827)",
+                          margin: "0 0 6px 0",
+                        }}>
+                          Possible reasons
+                        </h4>
+                        <ul style={{
+                          paddingLeft: 20,
+                          margin: "0 0 14px 0",
+                          display: "grid",
+                          gap: 4,
+                        }}>
+                          {t.reasons.map((r) => (
+                            <li key={r} style={{
+                              fontSize: "0.9rem",
+                              color: "var(--body, #4b5563)",
+                              lineHeight: 1.6,
+                            }}>
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
+                        <h4 style={{
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                          color: "var(--heading, #111827)",
+                          margin: "0 0 6px 0",
+                        }}>
+                          Solutions
+                        </h4>
+                        <ul style={{
+                          paddingLeft: 20,
+                          margin: 0,
+                          display: "grid",
+                          gap: 4,
+                        }}>
+                          {t.fixes.map((f) => (
+                            <li key={f} style={{
+                              fontSize: "0.9rem",
+                              color: "var(--body, #4b5563)",
+                              lineHeight: 1.6,
+                            }}>
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Security reminder */}
-        <section className={styles.contentSection} aria-label="Security reminder">
+        {/* Security Reminder */}
+        <section className={styles.contentSection} aria-label="Security reminder" style={{ paddingTop: 0, paddingBottom: 56 }}>
           <div className={styles.container}>
-            <div className={styles.notice} role="note">
-              <h2>Security Reminder</h2>
-              <p>
-                Always download the Goplay APK from the official source or this
-                guide. Never pay anyone claiming to provide early access or premium
-                account unlocks. Keep your Unknown Sources setting disabled when
-                it is no longer needed, and review app permissions during
-                installation.
-              </p>
+            <div style={{
+              background: "var(--warning-soft, #fef9e7)",
+              borderRadius: 20,
+              padding: "28px 28px",
+              border: "1px solid var(--warning-border, #fcd34d)",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 16,
+            }} role="note">
+              <span style={{ fontSize: "2rem", lineHeight: 1 }} aria-hidden="true">🔒</span>
+              <div>
+                <h2 style={{
+                  fontSize: "1.2rem",
+                  fontWeight: 600,
+                  color: "var(--warning-text, #92400e)",
+                  margin: "0 0 6px 0",
+                  letterSpacing: "-0.01em",
+                }}>
+                  Security Reminder
+                </h2>
+                <p style={{
+                  color: "var(--warning-text, #92400e)",
+                  lineHeight: 1.7,
+                  margin: 0,
+                  fontSize: "0.95rem",
+                }}>
+                  Always download the Goplay APK from the official source or this
+                  guide. Never pay anyone claiming to provide early access or premium
+                  account unlocks. Keep your Unknown Sources setting disabled when
+                  it is no longer needed, and review app permissions during
+                  installation.
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
       </main>
+
+      {/* Hover styles for cards and details */}
+      <style>{`
+        .stepCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+        }
+        .troubleItem:hover {
+          border-color: var(--border, #e5e7eb);
+        }
+        .troubleItem summary::-webkit-details-marker {
+          display: none;
+        }
+        .troubleItem[open] summary span:last-child {
+          transform: rotate(180deg);
+        }
+        .troubleItem summary span:last-child {
+          transition: transform 0.2s ease;
+        }
+      `}</style>
     </>
   );
 }

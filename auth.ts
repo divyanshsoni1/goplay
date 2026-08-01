@@ -5,16 +5,23 @@
  * Strategy: JWT session — role and user ID live inside the token,
  * so every protected route can read them without a DB round-trip.
  *
+ * Supported providers:
+ *  1. Google OAuth
+ *  2. Credentials (email + password)
+ *
  * Callbacks order on sign-in:
  *   signIn  →  jwt  →  session
  */
 
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { writeAuditLog } from "@/lib/audit";
+import { loginSchema } from "@/lib/validators";
 import type { Role } from "@prisma/client";
 
 // ─── NextAuth config ──────────────────────────────────────────────────────────
@@ -46,6 +53,101 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
     }),
+
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        // ── Validate input shape ─────────────────────────────────────────
+        const parsed = loginSchema.safeParse(credentials);
+        if (!parsed.success) return null;
+
+        const { email, password } = parsed.data;
+
+        try {
+          // ── Fetch user ─────────────────────────────────────────────────
+          const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+              password: true,
+              provider: true,
+              role: true,
+              isActive: true,
+            },
+          });
+
+          // No user found — generic null (no enumeration)
+          if (!user) {
+            logger.warn("Credentials login: user not found", { email });
+            return null;
+          }
+
+          // Account exists but was created via Google — no password set
+          if (!user.password) {
+            logger.warn("Credentials login: Google-only account", {
+              userId: user.id,
+            });
+            // Throw a descriptive error that the UI can surface
+            throw new Error("GoogleAccountOnly");
+          }
+
+          // Account inactive
+          if (!user.isActive) {
+            logger.warn("Credentials login: inactive account", {
+              userId: user.id,
+            });
+            throw new Error("AccountInactive");
+          }
+
+          // ── Verify password (constant-time) ────────────────────────────
+          const passwordMatch = await bcrypt.compare(password, user.password);
+          if (!passwordMatch) {
+            logger.warn("Credentials login: wrong password", {
+              userId: user.id,
+            });
+            await writeAuditLog({
+              action: "LOGIN_FAILED",
+              userId: user.id,
+              metadata: { reason: "wrong_password" },
+            });
+            return null;
+          }
+
+          // ── Success ────────────────────────────────────────────────────
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() },
+          });
+
+          await writeAuditLog({ action: "LOGIN", userId: user.id });
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
+        } catch (error) {
+          // Re-throw named errors so NextAuth forwards them as ?error= param
+          if (
+            error instanceof Error &&
+            (error.message === "GoogleAccountOnly" ||
+              error.message === "AccountInactive")
+          ) {
+            throw error;
+          }
+          logger.error("Credentials authorize error", { error: String(error) });
+          return null;
+        }
+      },
+    }),
   ],
 
   // ─── Callbacks ──────────────────────────────────────────────────────────────
@@ -54,8 +156,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     /**
      * signIn – runs before a session is created.
      * Block inactive accounts; upsert user record on first & subsequent logins.
+     * Credentials sign-ins skip the adapter upsert (no Account row) so we
+     * handle the audit/lastLogin in the authorize() function above.
      */
     async signIn({ user, account }) {
+      // Credentials provider: authorize() already validated everything
+      if (account?.provider === "credentials") return true;
+
       if (!user.email) {
         logger.warn("Sign-in rejected: no email from provider", {
           provider: account?.provider,
@@ -83,7 +190,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { id: existing.id },
             data: {
               lastLogin: new Date(),
-              // Refresh name/image from OAuth provider if provided
+              provider: account?.provider ?? "google",
               ...(user.name ? { name: user.name } : {}),
               ...(user.image ? { image: user.image } : {}),
             },
@@ -91,10 +198,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           await writeAuditLog({ action: "LOGIN", userId: existing.id });
         } else {
-          // First-time sign-in — NextAuth + PrismaAdapter will create the User
-          // row via the adapter; we only need to set role and lastLogin after.
-          // We schedule a post-creation update via a flag in the token (jwt cb).
-          logger.info("New user signing in", { email: user.email });
+          // First-time Google sign-in — adapter creates the User row
+          logger.info("New user signing in via Google", { email: user.email });
         }
 
         return true;
@@ -160,7 +265,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   events: {
     async signOut(message) {
       // `message` is a union: { session } for DB sessions or { token } for JWT
-      // We use JWT strategy so `token` is present
       const token = "token" in message ? message.token : null;
       if (token?.id) {
         await writeAuditLog({

@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import styles from "../../page.module.css";
 import type { FaqItem } from "./faqs-data";
-import { faqs } from "./faqs-data";
 
-export { faqs };
+interface FaqAccordionProps {
+  items: FaqItem[];
+}
 
-export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
+export default function FaqAccordion({ items }: FaqAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -43,9 +43,12 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
 
   return (
     <div
-      className={styles.faqWrap}
       role="region"
       aria-label="Frequently asked questions"
+      style={{
+        display: "grid",
+        gap: 12,
+      }}
     >
       {items.map((item, index) => {
         const isOpen = openIndex === index;
@@ -55,9 +58,17 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
         return (
           <div
             key={item.q}
-            className={styles.faqItem}
-            /* open attribute drives the CSS ::after chevron rotation */
-            {...(isOpen ? { "data-open": "" } : {})}
+            style={{
+              background: "#ffffff",
+              borderRadius: 16,
+              border: "1px solid var(--border-light, #f0f0f0)",
+              boxShadow: isOpen
+                ? "0 4px 16px rgba(0,0,0,0.04)"
+                : "0 1px 4px rgba(0,0,0,0.02)",
+              transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+              overflow: "hidden",
+            }}
+            className="faqItemWrapper"
           >
             <h3 style={{ margin: 0 }}>
               <button
@@ -66,7 +77,6 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
                 type="button"
                 aria-expanded={isOpen}
                 aria-controls={panelId}
-                className={styles.faqItem + "__btn"}
                 onClick={() => toggle(index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 style={{
@@ -76,30 +86,30 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
                   justifyContent: "space-between",
                   alignItems: "center",
                   width: "100%",
-                  padding: "20px 24px",
-                  fontFamily: "Arial, Helvetica, sans-serif",
-                  fontSize: "16px",
-                  fontWeight: 700,
-                  color: "var(--navy, #000666)",
+                  padding: "18px 24px",
+                  fontFamily: "inherit",
+                  fontSize: "1rem",
+                  fontWeight: 600,
+                  color: "var(--heading, #111827)",
                   boxSizing: "border-box",
-                  transition: "background 0.2s ease",
-                  background: isOpen ? "var(--surface-alt, #f3f4f5)" : "transparent",
+                  transition: "background 0.2s ease, color 0.2s ease",
+                  background: isOpen ? "var(--surface-alt, #f8fafc)" : "transparent",
                 }}
+                className="faqButton"
               >
-                <span>{item.q}</span>
+                <span style={{ paddingRight: 16 }}>{item.q}</span>
                 <span
                   aria-hidden="true"
                   style={{
-                    color: "var(--orange, #ff5b16)",
-                    fontSize: 18,
+                    color: "var(--primary, #2563eb)",
+                    fontSize: 20,
                     flexShrink: 0,
-                    marginLeft: 16,
-                    display: "inline-block",
                     transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.2s ease",
+                    transition: "transform 0.25s ease",
+                    display: "inline-block",
                   }}
                 >
-                  ▾
+                  ▼
                 </span>
               </button>
             </h3>
@@ -109,15 +119,18 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
               role="region"
               aria-labelledby={buttonId}
               hidden={!isOpen}
+              style={{
+                padding: "0 24px 20px 24px",
+                borderTop: isOpen ? "1px solid var(--border-light, #f0f0f0)" : "none",
+                transition: "border-color 0.3s ease",
+              }}
             >
               <p
                 style={{
-                  borderTop: "1px solid var(--border, #c6c5d4)",
-                  color: "var(--body, #454652)",
-                  lineHeight: 1.7,
-                  margin: "0 24px",
-                  padding: "18px 0",
-                  fontSize: 15,
+                  color: "var(--body, #4b5563)",
+                  lineHeight: 1.8,
+                  margin: "20px 0 0 0",
+                  fontSize: "0.95rem",
                 }}
               >
                 {item.a}
@@ -126,6 +139,20 @@ export function FaqAccordion({ items = faqs }: { items?: FaqItem[] }) {
           </div>
         );
       })}
+
+      {/* Hover styles via style block */}
+      <style>{`
+        .faqItemWrapper:hover {
+          border-color: var(--border, #e5e7eb);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+        .faqButton:hover {
+          background: var(--surface-alt, #f8fafc);
+        }
+        .faqButton:hover span:last-child {
+          color: var(--primary-dark, #1d4ed8);
+        }
+      `}</style>
     </div>
   );
 }

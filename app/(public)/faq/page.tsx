@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import styles from "../../page.module.css";
 import { Breadcrumbs, JsonLd, SectionHeader, breadcrumbSchema } from "../../ui";
-import { FaqAccordion } from "./faq-accordion";
+import FaqAccordion from "./faq-accordion";
 import { faqs } from "./faqs-data";
 
 export const metadata: Metadata = {
@@ -55,7 +55,7 @@ export default function Page() {
               label="YOUR QUESTIONS"
               title="Everything You Want to Know About Goplay"
             />
-            <FaqAccordion />
+            <FaqAccordion items={faqs} />
           </div>
         </section>
 

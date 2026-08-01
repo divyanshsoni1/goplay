@@ -82,3 +82,78 @@ export const downloadQuerySchema = z.object({
 });
 
 export type DownloadQuery = z.infer<typeof downloadQuerySchema>;
+
+// ─── Password ─────────────────────────────────────────────────────────────────
+
+/**
+ * Enforces strong password rules:
+ *  - 8–128 characters
+ *  - At least one uppercase letter
+ *  - At least one lowercase letter
+ *  - At least one digit
+ *  - At least one special character
+ */
+export const passwordSchema = z
+  .string({ error: "Password is required" })
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password must be at most 128 characters")
+  .refine((v) => /[A-Z]/.test(v), {
+    message: "Password must contain at least one uppercase letter",
+  })
+  .refine((v) => /[a-z]/.test(v), {
+    message: "Password must contain at least one lowercase letter",
+  })
+  .refine((v) => /[0-9]/.test(v), {
+    message: "Password must contain at least one number",
+  })
+  .refine((v) => /[^A-Za-z0-9]/.test(v), {
+    message: "Password must contain at least one special character",
+  });
+
+// ─── Register ─────────────────────────────────────────────────────────────────
+
+export const registerSchema = z
+  .object({
+    name: nameSchema,
+    email: emailSchema.toLowerCase(),
+    password: passwordSchema,
+    confirmPassword: z.string({ error: "Please confirm your password" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+
+// ─── Login ────────────────────────────────────────────────────────────────────
+
+export const loginSchema = z.object({
+  email: emailSchema.toLowerCase(),
+  password: z.string({ error: "Password is required" }).min(1, "Password is required"),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+
+// ─── Forgot Password ──────────────────────────────────────────────────────────
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema.toLowerCase(),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+// ─── Reset Password ───────────────────────────────────────────────────────────
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string({ error: "Reset token is required" }).min(1, "Reset token is required"),
+    password: passwordSchema,
+    confirmPassword: z.string({ error: "Please confirm your password" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
